@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import { gerarPDF } from './utils/pdfUtils';
 
 function App() {
   const [peso, setPeso] = useState('');
@@ -65,6 +66,24 @@ function App() {
       pesoMinimo: parseFloat(pesoMinimo.toFixed(1)),
       pesoMaximo: parseFloat(pesoMaximo.toFixed(1)),
     });
+  };
+
+  const handleGerarPDF = () => {
+    if (!peso || !altura || !idade || !sexo || !atividade) {
+      alert('Por favor, preencha todos os campos antes de baixar o PDF.');
+      return;
+    }
+
+    if (
+      resultado.calorias === 0 &&
+      resultado.imc === 0 &&
+      resultado.pesoMinimo === 0 &&
+      resultado.pesoMaximo === 0
+    ) {
+      alert('Por favor, calcule os resultados antes de baixar o PDF.');
+      return;
+    }
+    gerarPDF(resultado);
   };
 
   return (
@@ -135,6 +154,7 @@ function App() {
         </select>
       </div>
       <button onClick={calcular}>Calcular</button>
+      <button className="button-pdf" onClick={handleGerarPDF}>Baixar PDF</button>
       <div className="resultado">
         <h2>Resultados:</h2>
         <p>Gasto calórico diário: {resultado.calorias} kcal</p>
