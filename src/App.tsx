@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { gerarPDF } from './utils/pdfUtils';
+import { opcoesAtividade } from './utils/opcoesAtividade';
 
 function App() {
   const [peso, setPeso] = useState('');
@@ -14,6 +15,34 @@ function App() {
     pesoMinimo: 0,
     pesoMaximo: 0,
   });
+  const [podeCalcular, setPodeCalcular] = useState(false);
+  const [podeBaixarPDF, setPodeBaixarPDF] = useState(false);
+
+  useEffect(() => {
+    const pesoNum = parseFloat(peso);
+    const alturaNum = parseFloat(altura.replace(',', '.'));
+    const idadeNum = parseInt(idade);
+  
+    if (isNaN(pesoNum) || isNaN(alturaNum) || isNaN(idadeNum) || !sexo || !atividade) {
+      setPodeCalcular(false);
+      setPodeBaixarPDF(false);
+    } else {
+      setPodeCalcular(true);
+    }
+  }, [peso, altura, idade, sexo, atividade]);
+
+  useEffect(() => {
+    if (
+      resultado.calorias === 0 &&
+      resultado.imc === 0 &&
+      resultado.pesoMinimo === 0 &&
+      resultado.pesoMaximo === 0
+    ) {
+      setPodeBaixarPDF(false);
+    }else {
+      setPodeBaixarPDF(true);
+    }
+  },[resultado]);
 
   const interpretarAltura = (alturaStr: string) =>{
     if (!alturaStr) return NaN;
@@ -40,7 +69,6 @@ function App() {
       return;
     }
 
-    // Fórmulas de exemplo
     const imc = pesoNum / (alturaNum * alturaNum);
     const pesoMinimo = 18.5 * (alturaNum * alturaNum);
     const pesoMaximo = 24.9 * (alturaNum * alturaNum);
@@ -86,14 +114,17 @@ function App() {
     gerarPDF(resultado);
   };
 
+  const atividadeSelecionada = opcoesAtividade.find((opcao) => opcao.value === atividade);
+
   return (
     <div className="container">
       <h1>Calcular TMP</h1>
+      <h2 id='subtittle'>(taxa metabólica basal)</h2>
       <div className="form-group">
         <label>Peso (kg):</label>
         <input
           type="number"
-          placeholder="75"
+          placeholder="Ex: 75"
           value={peso}
           onChange={(e) => setPeso(e.target.value)}
         />
@@ -102,7 +133,7 @@ function App() {
         <label>Altura (m):</label>
         <input
           type="number"
-          placeholder="1,70"
+          placeholder="Ex: 1,70"
           value={altura}
           onChange={(e) => setAltura(e.target.value)}
         />
@@ -111,13 +142,13 @@ function App() {
         <label>Idade (anos):</label>
         <input
           type="number"
-          placeholder="30"
+          placeholder="Ex: 30"
           value={idade}
           onChange={(e) => setIdade(e.target.value)}
         />
       </div>
       <div className="form-group">
-        <label>Sexo:</label>
+        <label id='description'>Sexo:</label>
         <div>
           <label>
             <input
@@ -139,28 +170,68 @@ function App() {
           </label>
         </div>
       </div>
-      <div className="form-group">
-        <label>Fator de Atividade Física:</label>
-        <select
-          value={atividade}
-          onChange={(e) => setAtividade(e.target.value)}
-        >
-          <option value="">Selecione</option>
-          <option value="sedentario">Sedentário</option>
-          <option value="leve">Levemente ativo</option>
-          <option value="moderado">Moderadamente ativo</option>
-          <option value="ativo">Muito ativo</option>
-          <option value="muitoAtivo">Extremamente ativo</option>
-        </select>
+      <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <label id='description'>Fator de Atividade Física:</label>
+        {opcoesAtividade.map((opcao) => (
+          <label key={opcao.value} style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
+            <input
+              type="radio"
+              name="atividade"
+              value={opcao.value}
+              checked={atividade === opcao.value}
+              onChange={(e) => setAtividade(e.target.value)}
+              style={{ marginTop: '3px' }}
+            />
+            <div>
+              <span style={{ fontWeight: '700', fontSize: '0.9em', color: '#555'}}>{opcao.label}</span>
+              <span style={{ fontWeight: '500', fontSize: '0.9em', color: '#555' }}> {opcao.descricao}</span>
+            </div>
+          </label>
+        ))}
+        {atividadeSelecionada && (
+          <div style={{ marginTop: '12px', padding: '8px', background: '#f9f9f9', borderRadius: '6px', border: '1px solid #ddd' }}>
+            <strong>{atividadeSelecionada.label}</strong> {atividadeSelecionada.descricao}
+          </div>
+        )}
       </div>
-      <button onClick={calcular}>Calcular</button>
-      <button className="button-pdf" onClick={handleGerarPDF}>Baixar PDF</button>
+      <button id={podeCalcular ? 'button-calculo' : 'button-inativo'} onClick={calcular}>Calcular</button>
+      <button id={podeBaixarPDF ? 'button-pdf' : 'button-inativo'} onClick={handleGerarPDF}>Baixar PDF</button>
       <div className="resultado">
         <h2>Resultados:</h2>
         <p>Gasto calórico diário: {resultado.calorias} kcal</p>
         <p>IMC: {resultado.imc}</p>
         <p>Peso ideal mínimo: {resultado.pesoMinimo} kg</p>
         <p>Peso ideal máximo: {resultado.pesoMaximo} kg</p>
+        {resultado.imc > 0 && (
+            <span style={{
+              color:
+              resultado.imc < 18.5
+              ? 'rgb(255, 0, 0)' // Magreza (Vermelho - Alerta/Risco)
+              : resultado.imc < 25
+              ? 'rgb(0, 128, 0)' // Peso normal (Verde - Saudável)
+              : resultado.imc < 30
+              ? 'rgb(255, 255, 0)' // Sobrepeso (Amarelo - Atenção)
+              : resultado.imc < 35
+              ? 'rgb(255, 140, 0)' // Obesidade Grau 1 (Laranja Escuro - Atenção)
+              : 'rgb(255, 0, 0)', // Magreza (Vermelho - Alerta/Risco),
+              fontWeight: 'bold',
+              backgroundColor: 'black',
+            }}>
+              (
+              {resultado.imc < 18.5
+                ? 'Magreza'
+                : resultado.imc < 25
+                ? 'Peso normal'
+                : resultado.imc < 30
+                ? 'Sobrepeso'
+                : resultado.imc < 35
+                ? 'Obesidade grau 1'
+                : resultado.imc < 40
+                ? 'Obesidade grau 2'
+                : 'Obesidade grau 3'}
+              )
+            </span>
+          )}
       </div>
     </div>
   );

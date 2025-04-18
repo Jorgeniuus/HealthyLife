@@ -2,7 +2,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: auto;
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #f5f5f5; 
@@ -22,6 +22,16 @@ h1 {
   color: #333;
   margin-bottom: 20px;
 }
+h2#subtittle {
+  text-align: center;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+  font-weight: normal;
+  margin-bottom: 20px;
+  margin-top: -20px;
+}
 
 .form-group {
   margin-bottom: 15px;
@@ -32,6 +42,10 @@ label {
   font-weight: bold;
   margin-bottom: 5px;
   color: #555;
+}
+label#description {
+    font-weight: 1000; 
+    color: '#555';
 }
 
 input[type="number"],
@@ -50,13 +64,24 @@ input[type="radio"] {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
   margin-top: 10px;
+}
+
+button#button-calculo {
+  background-color: #007bff;
+}
+
+button#button-pdf {
+  background-color: #218838;
+}
+
+button#button-inativo {
+  background-color: #787978;
 }
 
 button:hover {
