@@ -1,4 +1,5 @@
 {
+  "homepage": "https://Jorgeniuus.github.io/HealthyLife",
   "name": "healthylife",
   "private": true,
   "version": "0.0.0",
@@ -9,9 +10,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "homepage": "https://Jorgeniuus.github.io/HealthyLife"
-
+    "preview": "vite preview"
   },
   "dependencies": {
     "jspdf": "^3.0.1",
