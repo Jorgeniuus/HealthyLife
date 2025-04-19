@@ -1,10 +1,10 @@
 import jsPDF from 'jspdf'; 
 
-export const gerarPDF = (resultado: {
-  calorias: number;
-  imc: number;
-  pesoMinimo: number;
-  pesoMaximo: number;
+export const generatePDF = (result: {
+  calories: number;
+  bmi: number;
+  minWeight: number;
+  maxWeight: number;
 }) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -30,26 +30,26 @@ export const gerarPDF = (resultado: {
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text(`Gasto calórico diário: ${resultado.calorias} kcal`, pageWidth / 2, currentY, { align: 'center' });
+  doc.text(`Gasto calórico diário: ${result.calories} kcal`, pageWidth / 2, currentY, { align: 'center' });
   currentY += 10;
-  doc.text(`IMC: ${resultado.imc}`, pageWidth / 2, currentY, { align: 'center' });
+  doc.text(`IMC: ${result.bmi}`, pageWidth / 2, currentY, { align: 'center' });
   currentY += 10;
-  doc.text(`Peso ideal mínimo: ${resultado.pesoMinimo} kg`, pageWidth / 2, currentY, { align: 'center' });
+  doc.text(`Peso ideal mínimo: ${result.minWeight} kg`, pageWidth / 2, currentY, { align: 'center' });
   currentY += 10;
-  doc.text(`Peso ideal máximo: ${resultado.pesoMaximo} kg`, pageWidth / 2, currentY, { align: 'center' });
+  doc.text(`Peso ideal máximo: ${result.maxWeight} kg`, pageWidth / 2, currentY, { align: 'center' });
   currentY += 15;
 
-  const getIMCEstado = (imc: number) => {
-    if (imc < 18.5) return { estado: 'Magreza', cor: [255, 0, 0] }; 
-    if (imc < 25) return { estado: 'Peso normal', cor: [0, 128, 0] }; 
-    if (imc < 30) return { estado: 'Sobrepeso', cor: [255, 255, 0] }; 
-    if (imc < 35) return { estado: 'Obesidade Grau 1', cor: [255, 140, 0] }; 
-    if (imc < 40) return { estado: 'Obesidade Grau 2', cor: [255, 0, 0] }; 
-    return { estado: 'Obesidade Grau 3', cor: [255, 0, 0] }; 
+  const getBMIStatus = (bmi: number) => {
+    if (bmi < 18.5) return { status: 'Magreza', color: [255, 0, 0] }; 
+    if (bmi < 25) return { status: 'Peso normal', color: [0, 128, 0] }; 
+    if (bmi < 30) return { status: 'Sobrepeso', color: [255, 255, 0] }; 
+    if (bmi < 35) return { status: 'Obesidade Grau 1', color: [255, 140, 0] }; 
+    if (bmi < 40) return { status: 'Obesidade Grau 2', color: [255, 0, 0] }; 
+    return { status: 'Obesidade Grau 3', color: [255, 0, 0] }; 
   };
 
-  const { estado, cor } = getIMCEstado(resultado.imc);
-  const textoStatus = `Você está em ${estado}`;
+  const { status, color } = getBMIStatus(result.bmi);
+  const textoStatus = `Você está em ${status}`;
   const textWidth = doc.getTextWidth(textoStatus);
   const boxPadding = 4;
   const boxWidth = textWidth + boxPadding * 2;
@@ -60,7 +60,7 @@ export const gerarPDF = (resultado: {
   doc.setFillColor(0, 0, 0);
   doc.rect(boxX, boxY, boxWidth, boxHeight, 'F');
 
-  doc.setTextColor(...cor);
+  doc.setTextColor(...color);
   doc.text(textoStatus, pageWidth / 2, boxY + 7, { align: 'center' });
 
   doc.setTextColor(0, 0, 0);
