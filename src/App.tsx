@@ -74,7 +74,7 @@ function App() {
     const minWeight = 18.5 * (heightNum * heightNum);
     const maxHeight = 24.9 * (heightNum * heightNum);
 
-    const activityFactor = {
+    const activityFactor: { [key: string]: number } = {
       sedentario: 1.2,
       leve: 1.375,
       moderado: 1.55,
@@ -87,8 +87,8 @@ function App() {
         ? (10 * weightNum) + 6.25 * (heightNum * 100) - 5 * ageNum + 5
         : (10 * weightNum) + 6.25 * (heightNum * 100) - 5 * ageNum - 161;
 
-    const calories = basalMetabolicRate * activityFactor[activity];
-
+    const calories = basalMetabolicRate * activityFactor[activity as keyof typeof activityFactor];
+    
     setResult({
       calories: Math.round(calories),
       bmi: parseFloat(bmi.toFixed(1)),

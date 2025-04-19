@@ -60,7 +60,7 @@ export const generatePDF = (result: {
   doc.setFillColor(0, 0, 0);
   doc.rect(boxX, boxY, boxWidth, boxHeight, 'F');
 
-  doc.setTextColor(...color);
+  doc.setTextColor(color[0], color[1], color[2]);
   doc.text(textoStatus, pageWidth / 2, boxY + 7, { align: 'center' });
 
   doc.setTextColor(0, 0, 0);
